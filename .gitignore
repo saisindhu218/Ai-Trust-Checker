@@ -1,0 +1,62 @@
+# ===== Secrets — never commit these =====
+.env
+backend/.env
+web/.env
+*.pem
+*.key
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+ENV/
+.venv/
+backend/venv/
+web/venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# SQLite database (local data, not source)
+*.db
+*.sqlite
+*.sqlite3
+trust_checker.db
+
+# ===== Node / Expo / React Native =====
+node_modules/
+.expo/
+.expo-shared/
+dist/
+web-build/
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+*.orig.*
+
+# npm/yarn logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# ===== Android / iOS native (if you ever run expo prebuild) =====
+mobile/android/
+mobile/ios/
+*.hprof
+local.properties
+
+# ===== OS / Editor clutter =====
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# ===== Misc build output =====
+*.log
+.cache/

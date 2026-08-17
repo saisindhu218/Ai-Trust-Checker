@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "AI Trust Checker",
+    "slug": "ai-trust-checker",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#0F172A"
+    },
+    "android": {
+      "package": "com.aitrustchecker.app"
+    },
+    "ios": {
+      "bundleIdentifier": "com.aitrustchecker.app"
+    }
+  }
+}
