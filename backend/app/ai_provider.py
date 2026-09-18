@@ -6,9 +6,18 @@ so that swapping providers later (Groq, local model, etc.) only means adding
 a new function here and changing one line in main.py.
 """
 
-import os
 import json
+import os
+from pathlib import Path
+
 import httpx
+from dotenv import load_dotenv
+
+from app.schemas import AIResult
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+load_dotenv(Path(__file__).resolve().parents[2] / "web" / ".env")
+load_dotenv()
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
@@ -19,7 +28,7 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 # Oct 16, 2026 — if this starts 404ing again after that date, swap the
 # default below to whatever Google's current free-tier Flash model is
 # (check https://ai.google.dev/gemini-api/docs/models for the live list).
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-flash-lite-latest")
 GEMINI_URL = (
     f"https://generativelanguage.googleapis.com/v1beta/models/"
     f"{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
@@ -69,18 +78,34 @@ like ordinary, safe content, say so plainly and keep the score low."""
 
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 400},
+        "generationConfig": {
+            "temperature": 0.2,
+            "maxOutputTokens": 800,
+            "responseMimeType": "application/json",
+        },
     }
 
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(GEMINI_URL, json=payload)
             resp.raise_for_status()
             data = resp.json()
             raw_text = data["candidates"][0]["content"]["parts"][0]["text"]
-            cleaned = raw_text.strip().strip("`")
-            if cleaned.startswith("json"):
-                cleaned = cleaned[4:].strip()
-            return json.loads(cleaned)
+            cleaned = raw_text.strip()
+            if cleaned.startswith("```"):
+                cleaned = cleaned.removeprefix("```").removeprefix("json").strip()
+                cleaned = cleaned.removesuffix("```").strip()
+            if not cleaned.startswith("{"):
+                cleaned = cleaned[cleaned.find("{") : cleaned.rfind("}") + 1]
+            parsed = json.loads(cleaned)
+            if not isinstance(parsed, dict):
+                raise ValueError("Gemini response was not a JSON object")
+            try:
+                parsed["score_adjustment"] = max(-20, min(20, int(parsed.get("score_adjustment", 0))))
+            except (TypeError, ValueError):
+                parsed["score_adjustment"] = 0
+            if isinstance(parsed.get("recommended_actions"), list):
+                parsed["recommended_actions"] = parsed["recommended_actions"][:5]
+            return AIResult.model_validate(parsed)
     except Exception as e:
-        raise AIUnavailable(str(e))
+        raise AIUnavailable(f"{type(e).__name__}: {e}")

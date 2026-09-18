@@ -1,29 +1,29 @@
 // Change this to your laptop's LAN IP when testing on a physical phone via
-// Expo Go (localhost won't work from a real device). Find it with:
-// ipconfig  (look for "IPv4 Address" under Wi-Fi)
-export const API_BASE_URL = "http://192.168.1.100:8000";
+// Expo Go (localhost won't work from a real device). If you're using the
+// web preview or an Android emulator on the SAME machine, localhost is fine
+// (the emulator alias 10.0.2.2 is handled by Expo automatically for you
+// only in bare React Native, so on Expo Go just use your LAN IP).
+//
+// Find your IP with: ipconfig  (look for "IPv4 Address" under Wi-Fi)
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.0.109:8000";
+const API_ACCESS_TOKEN = process.env.EXPO_PUBLIC_API_ACCESS_TOKEN || "";
 
 const REQUEST_TIMEOUT_MS = 20000;
 
-async function fetchWithTimeout(url, options) {
+async function fetchWithTimeout(url, options = {}) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   try {
-    const res = await fetch(url, { ...options, signal: controller.signal });
-    return res;
-  } catch (err) {
-    if (err.name === "AbortError") {
-      // A silent hang almost always means the phone can't reach the server —
-      // most commonly Windows Firewall blocking inbound connections to
-      // uvicorn, the phone being on a different Wi-Fi network, or a stale IP
-      // in API_BASE_URL above.
-      throw new Error(
-        `No response after ${REQUEST_TIMEOUT_MS / 1000}s. Check that: (1) the backend is running, ` +
-          `(2) API_BASE_URL matches your laptop's current IP, (3) Windows Firewall allows inbound ` +
-          `connections on port 8000, and (4) your phone is on the same Wi-Fi as your laptop.`
-      );
+    const headers = {
+      ...(options.headers || {}),
+      ...(API_ACCESS_TOKEN ? { "X-API-Key": API_ACCESS_TOKEN } : {}),
+    };
+    return await fetch(url, { ...options, headers, signal: controller.signal });
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("The server took too long to respond. Check that the backend is running and reachable from this device.");
     }
-    throw err;
+    throw error;
   } finally {
     clearTimeout(timeoutId);
   }

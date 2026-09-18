@@ -20,74 +20,23 @@ import streamlit as st
 BACKEND_DIR = Path(__file__).resolve().parent.parent / "backend"
 sys.path.insert(0, str(BACKEND_DIR))
 
-from app.scam_rules import run_rules          # noqa: E402
-from app.ai_provider import explain_risk, AIUnavailable  # noqa: E402
+from app.analyzer import analyze_text  # noqa: E402
 
 st.set_page_config(page_title="AI Trust Checker", page_icon="🛡️", layout="centered")
 
 LEVEL_COLOR = {"HIGH": "#DC2626", "MEDIUM": "#D97706", "LOW": "#16A34A"}
 
-DEFAULT_ACTIONS = {
-    "HIGH": [
-        "Do not click any links in this message",
-        "Do not share OTP, PIN, or passwords",
-        "Verify directly through the official app or website",
-    ],
-    "MEDIUM": [
-        "Be cautious before acting on this message",
-        "Verify the sender through an official channel",
-    ],
-    "LOW": ["No strong red flags found, but stay alert with unfamiliar senders"],
-}
-
-
-def score_to_level(score: int) -> str:
-    if score >= 60:
-        return "HIGH"
-    if score >= 30:
-        return "MEDIUM"
-    return "LOW"
-
-
 def analyze(text: str) -> dict:
-    rules = run_rules(text)
-    score = rules.base_score
-    category = rules.category
-    confidence = "medium"
-    summary = ""
-    red_flags = [h.label for h in rules.hits]
-    actions = DEFAULT_ACTIONS[score_to_level(score)]
-    ai_used = False
-    ai_error = None
-
     try:
-        ai_result = asyncio.run(explain_risk(text, rules.hits, category, score))
-        adj = max(-20, min(20, int(ai_result.get("score_adjustment", 0) or 0)))
-        score = max(0, min(100, score + adj))
-        category = ai_result.get("category") or category
-        confidence = ai_result.get("confidence", confidence)
-        summary = ai_result.get("summary", "")
-        actions = ai_result.get("recommended_actions") or actions
-        ai_used = True
-    except AIUnavailable as e:
-        ai_error = str(e)
-        if not red_flags:
-            summary = "No strong scam/phishing patterns detected by the rule engine. AI reasoning was unavailable, so treat this as a partial check."
-            confidence = "low"
-        else:
-            summary = f"Rule-based patterns detected: {', '.join(red_flags[:3])}. AI reasoning was unavailable, so this is a partial check."
-
-    return {
-        "risk_score": score,
-        "risk_level": score_to_level(score),
-        "confidence": confidence,
-        "category": category,
-        "red_flags": red_flags,
-        "recommended_actions": actions,
-        "summary": summary,
-        "ai_used": ai_used,
-        "ai_error": ai_error,
-    }
+        return asyncio.run(analyze_text(text))
+    except RuntimeError as error:
+        if "asyncio.run() cannot be called" not in str(error):
+            raise
+        loop = asyncio.new_event_loop()
+        try:
+            return loop.run_until_complete(analyze_text(text))
+        finally:
+            loop.close()
 
 
 st.title("🛡️ AI Trust Checker")
