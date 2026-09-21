@@ -32,6 +32,8 @@ class RuleResult:
 PATTERNS = [
     (r"\b(otp|one[\s-]?time password)\b.{0,50}\b(share|send|tell|enter|provide|submit|complete|verify)\b|\b(share|send|tell|enter|provide|submit|complete|verify)\b.{0,50}\b(otp|one[\s-]?time password)\b", "Asks you to share or enter an OTP", 30, "Phishing / Account Takeover"),
     (r"\b(atm\s+pin|debit\s+card\s+pin|pin)\b.{0,50}\b(enter|share|send|provide|submit|complete|verify)\b|\b(enter|share|send|provide|submit|complete|verify)\b.{0,50}\b(atm\s+pin|debit\s+card\s+pin|pin)\b", "Asks you to enter or share a PIN", 35, "Phishing / Account Takeover"),
+    (r"\b(aadhaar|adhaar|pan|passport|voter\s+id)\b.{0,100}\b(bank\s+account|account\s+number)\b.{0,100}\b(otp|one[\s-]?time password)\b|\b(otp|one[\s-]?time password)\b.{0,100}\b(aadhaar|adhaar|pan|passport|voter\s+id)\b.{0,100}\b(bank\s+account|account\s+number)\b", "Requests multiple identity, banking, and OTP credentials", 45, "Identity Theft / HR Impersonation"),
+    (r"\b(hr|human resources|employee records|salary|payroll)\b.{0,120}\b(aadhaar|adhaar|pan|bank\s+account|otp)\b", "Impersonates HR to request sensitive employee data", 35, "Identity Theft / HR Impersonation"),
     (r"\b(account|kyc|card)\b.{0,30}\b(block|suspend|freeze|deactivat)\w*\b", "Threatens to block/suspend your account", 22, "Phishing / Impersonation"),
     (r"\b(click(?:ing)?|tap(?:ping)?)\b.{0,40}\b(link|here|below|now)\b|\b(link|here|below)\b.{0,40}\b(click(?:ing)?|tap(?:ping)?)\b", "Urges you to click a link", 15, "Phishing / Impersonation"),
     (r"\b(click|tap|visit|open)\b.{0,50}https?://\S+", "Sends a link for verification or payment", 15, "Phishing / Impersonation"),
@@ -67,6 +69,7 @@ URGENCY_WORDS = ["urgent", "immediately", "asap", "act now", "final notice", "la
 
 CATEGORY_PRIORITY = {
     "Phishing / Account Takeover": 100,
+    "Identity Theft / HR Impersonation": 101,
     "Family Impersonation Scam": 95,
     "Electricity Bill Scam": 90,
     "Investment Scam": 85,
@@ -86,7 +89,17 @@ def run_rules(text: str) -> RuleResult:
     result = RuleResult()
     lowered = text.lower()
 
+    safe_otp_notice = bool(
+        re.search(
+            r"\b(otp|one[\s-]?time password)\b.{0,80}\b(do not|don't|never)\s+share\b|\b(do not|don't|never)\s+share\b.{0,80}\b(otp|one[\s-]?time password)\b",
+            lowered,
+        )
+        and re.search(r"\b(if you did not request|ignore this|did not request)\b", lowered)
+    )
+
     for pattern, label, weight, category in PATTERNS:
+        if safe_otp_notice and label == "Asks you to share or enter an OTP":
+            continue
         if re.search(pattern, lowered):
             result.add(label, weight)
             if category and result.category == "Unknown":
@@ -95,7 +108,9 @@ def run_rules(text: str) -> RuleResult:
     matched_categories = [
         category
         for pattern, label, weight, category in PATTERNS
-        if category and re.search(pattern, lowered)
+        if category
+        and not (safe_otp_notice and label == "Asks you to share or enter an OTP")
+        and re.search(pattern, lowered)
     ]
     if matched_categories:
         result.category = max(
@@ -193,5 +208,10 @@ def run_rules(text: str) -> RuleResult:
     for condition, floor in high_confidence_floors:
         if condition:
             result.base_score = max(result.base_score, floor)
+
+    if any("identity" in hit.label.lower() for hit in result.hits):
+        result.base_score = max(result.base_score, 80)
+    if any("security alert" in hit.label.lower() for hit in result.hits):
+        result.base_score = max(result.base_score, 60)
 
     return result

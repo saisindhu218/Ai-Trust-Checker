@@ -5,7 +5,7 @@
 // only in bare React Native, so on Expo Go just use your LAN IP).
 //
 // Find your IP with: ipconfig  (look for "IPv4 Address" under Wi-Fi)
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.0.109:8000";
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.0.110:8000";
 const API_ACCESS_TOKEN = process.env.EXPO_PUBLIC_API_ACCESS_TOKEN || "";
 
 const REQUEST_TIMEOUT_MS = 20000;
@@ -36,6 +36,9 @@ export async function analyzeText(text) {
     body: JSON.stringify({ text }),
   });
   if (!res.ok) {
+    if (res.status === 401) {
+      throw new Error("The backend rejected the API token. Restart Expo from the mobile folder with the current backend token.");
+    }
     throw new Error(`Server error: ${res.status}`);
   }
   return res.json();
@@ -44,6 +47,9 @@ export async function analyzeText(text) {
 export async function fetchHistory() {
   const res = await fetchWithTimeout(`${API_BASE_URL}/history`);
   if (!res.ok) {
+    if (res.status === 401) {
+      throw new Error("The backend rejected the API token. Restart Expo from the mobile folder with the current backend token.");
+    }
     throw new Error(`Server error: ${res.status}`);
   }
   return res.json();
