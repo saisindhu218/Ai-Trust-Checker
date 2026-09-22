@@ -99,7 +99,6 @@ def analyze(text: str) -> dict:
 
 st.title("🛡️ AI Trust Checker")
 st.caption("Before you click, pay, share, or believe — check it.")
-st.caption("Built by Sai Sindhu Rachabattuni")
 
 if not os.environ.get("GEMINI_API_KEY"):
     st.warning(
