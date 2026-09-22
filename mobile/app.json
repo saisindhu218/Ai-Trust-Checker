@@ -13,6 +13,12 @@
     },
     "ios": {
       "bundleIdentifier": "com.aitrustchecker.app"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "9d3f4db2-9359-42af-8f4e-0549706027e3"
+      }
+    },
+    "owner": "team-achievers"
   }
 }
