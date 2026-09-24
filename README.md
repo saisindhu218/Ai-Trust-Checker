@@ -112,6 +112,8 @@ AI-Trust-Checker/
 ├── mobile/
 └── web/
 ```
+## Output 
+<img width="50%" alt="AI Trust Checker" src="https://github.com/user-attachments/assets/32b5d333-8eeb-421f-b813-d77e8e167bdd" />
 
 ## About
 
@@ -120,3 +122,4 @@ AI Trust Checker helps users identify potentially fraudulent messages before cli
 ## Author
 
 Rachabattuni Sai Sindhu
+MCA - Jain (Deemed-to-be) University
