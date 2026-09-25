@@ -113,8 +113,10 @@ AI-Trust-Checker/
 └── web/
 ```
 ## Output 
-<img width="50%" alt="AI Trust Checker" src="https://github.com/user-attachments/assets/32b5d333-8eeb-421f-b813-d77e8e167bdd" />  
+<img width="50%" alt="AI Trust Checker" src="https://github.com/user-attachments/assets/32b5d333-8eeb-421f-b813-d77e8e167bdd" /> 
+
 <img width="50%" alt="AI Trust Checker" src="https://github.com/user-attachments/assets/c7bac663-d988-4441-8817-4dec78742e7c" />
+
 ## About
 
 AI Trust Checker helps users identify potentially fraudulent messages before clicking links, sharing sensitive information, or making payments.
