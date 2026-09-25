@@ -117,7 +117,7 @@ AI-Trust-Checker/
 
 <img width="50%" alt="AI Trust Checker" src="https://github.com/user-attachments/assets/c7bac663-d988-4441-8817-4dec78742e7c" />
 
-<img width="712" height="1600" alt="Image" src="https://github.com/user-attachments/assets/f7b2160e-0735-43f0-b5b3-d3a8ab2f477f" />
+<img width="356" height="800" alt="AI Trust Checker Mobile App" src="https://github.com/user-attachments/assets/f7b2160e-0735-43f0-b5b3-d3a8ab2f477f" />
 
 
 ## About
