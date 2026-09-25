@@ -113,7 +113,7 @@ AI-Trust-Checker/
 └── web/
 ```
 ## Output 
-<img width="50%" alt="AI Trust Checker" src="https://github.com/user-attachments/assets/32b5d333-8eeb-421f-b813-d77e8e167bdd" />
+<img width="50%" alt="AI Trust Checker" src="https://github.com/user-attachments/assets/32b5d333-8eeb-421f-b813-d77e8e167bdd" />  |  <img width="960" height="510" alt="Image" src="https://github.com/user-attachments/assets/a46b6d47-dae8-44ba-92a2-ca42e6a62810" />
 
 ## About
 
