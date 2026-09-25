@@ -56,6 +56,19 @@ def score_to_level(score: int) -> str:
     return "LOW"
 
 
+def _field(obj, name, default=None):
+    """Reads a field whether ai_result is a dict or a Pydantic model.
+
+    ai_provider.py's explain_risk() now returns a validated Pydantic object
+    instead of a plain dict, so the old .get(...) calls broke with
+    "AttributeError: ... object has no attribute 'get'". This works with
+    either shape, so it doesn't matter which one explain_risk() returns.
+    """
+    if isinstance(obj, dict):
+        return obj.get(name, default)
+    return getattr(obj, name, default)
+
+
 def analyze(text: str) -> dict:
     rules = run_rules(text)
     score = rules.base_score
@@ -69,12 +82,12 @@ def analyze(text: str) -> dict:
 
     try:
         ai_result = asyncio.run(explain_risk(text, rules.hits, category, score))
-        adj = max(-20, min(20, int(ai_result.get("score_adjustment", 0) or 0)))
+        adj = max(-20, min(20, int(_field(ai_result, "score_adjustment", 0) or 0)))
         score = max(0, min(100, score + adj))
-        category = ai_result.get("category") or category
-        confidence = ai_result.get("confidence", confidence)
-        summary = ai_result.get("summary", "")
-        actions = ai_result.get("recommended_actions") or actions
+        category = _field(ai_result, "category") or category
+        confidence = _field(ai_result, "confidence", confidence)
+        summary = _field(ai_result, "summary", "")
+        actions = _field(ai_result, "recommended_actions") or actions
         ai_used = True
     except AIUnavailable as e:
         ai_error = str(e)
@@ -99,7 +112,6 @@ def analyze(text: str) -> dict:
 
 st.title("🛡️ AI Trust Checker")
 st.caption("Before you click, pay, share, or believe — check it.")
-st.caption("Built by Sai Sindhu Rachabattuni")
 
 if not os.environ.get("GEMINI_API_KEY"):
     st.warning(
