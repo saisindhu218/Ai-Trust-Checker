@@ -113,11 +113,34 @@ AI-Trust-Checker/
 └── web/
 ```
 ## Output 
-<img width="50%" alt="AI Trust Checker" src="https://github.com/user-attachments/assets/32b5d333-8eeb-421f-b813-d77e8e167bdd" /> 
+## Screenshots
 
-<img width="50%" alt="AI Trust Checker" src="https://github.com/user-attachments/assets/c7bac663-d988-4441-8817-4dec78742e7c" />
-
-<img width="356" height="800" alt="AI Trust Checker Mobile App" src="https://github.com/user-attachments/assets/f7b2160e-0735-43f0-b5b3-d3a8ab2f477f" />
+<table>
+  <tr>
+    <th>Website</th>
+    <th>Website</th>
+  </tr>
+  <tr>
+    <td>
+      <img width="600" alt="AI Trust Checker Website" src="https://github.com/user-attachments/assets/32b5d333-8eeb-421f-b813-d77e8e167bdd" />
+    </td>
+    <td>
+      <img width="600" alt="AI Trust Checker Website" src="https://github.com/user-attachments/assets/c7bac663-d988-4441-8817-4dec78742e7c" />
+    </td>
+  </tr>
+  <tr>
+    <th>Mobile</th>
+    <th>Mobile</th>
+  </tr>
+  <tr>
+    <td>
+      <img width="280" alt="AI Trust Checker Mobile App" src="https://github.com/user-attachments/assets/f7b2160e-0735-43f0-b5b3-d3a8ab2f477f" />
+    </td>
+    <td>
+      <img width="280" alt="AI Trust Checker Mobile App" src="https://github.com/user-attachments/assets/e162cd22-c4a8-4990-ba61-69615a379b18" />
+    </td>
+  </tr>
+</table>
 
 
 ## About
